@@ -57,6 +57,10 @@ func Test_ContainerTemplate(t *testing.T) {
 }
 
 func Test_EnumMethods(t *testing.T) {
+
+	if ExternalLanguages.Has("php") == false {
+		t.Error("Expected PHP to be in the enum")
+	}
 	if ExternalLanguages.Has("PHP") == false {
 		t.Error("Expected PHP to be in the enum")
 	}

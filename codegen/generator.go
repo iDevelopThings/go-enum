@@ -104,7 +104,9 @@ func (g *CodeGenerator) BuildDefinitions() {
 		return
 	}
 
-	g.Enums = append(g.Enums, enumExtractor.Enums...)
+	for _, enum := range enumExtractor.Enums {
+		g.Enums = append(g.Enums, enum)
+	}
 
 	logger.Infof("Enums defined in source file:")
 

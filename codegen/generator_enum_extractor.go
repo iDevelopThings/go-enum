@@ -18,12 +18,12 @@ var nameCommentRegex = regexp.MustCompile("(?i)//\\s*name:\\s*(.+)$")
 //var valueCommentRegex = regexp.MustCompile("(?i)//\\s*value:\\s*(.+)$")
 
 type EnumExtractor struct {
-	Enums []*Enum
+	Enums map[string]*Enum
 }
 
 func NewEnumExtractor() *EnumExtractor {
 	return &EnumExtractor{
-		Enums: make([]*Enum, 0),
+		Enums: make(map[string]*Enum),
 	}
 }
 
@@ -39,6 +39,21 @@ func (f *EnumExtractor) IsEnumValueComment(comment string) (string, bool) {
 func (f *EnumExtractor) BuildEnumsFromScope(scope *dst.Scope) {
 
 	for name, object := range scope.Objects {
+
+		if object.Kind == dst.Fun && strings.HasPrefix(object.Name, "compare") {
+			for _, typeName := range Options.TypeNames {
+				if "compare"+typeName == object.Name {
+					logger.Infof("Found compare function `%s` for `%s`", object.Name, typeName)
+
+					if _, ok := f.Enums[typeName]; !ok {
+						f.Enums[typeName] = NewEnum(typeName)
+					}
+					f.Enums[typeName].CompareFunction = object.Name
+
+				}
+			}
+			continue
+		}
 
 		// Ensure it's a type
 		if object.Kind != dst.Typ {
@@ -61,7 +76,14 @@ func (f *EnumExtractor) BuildEnumsFromScope(scope *dst.Scope) {
 }
 
 func (f *EnumExtractor) buildEnumFromStruct(name string, structDec *dst.TypeSpec, structType *dst.StructType) {
-	enum := NewEnum(name)
+	var enum *Enum
+	if _, ok := f.Enums[name]; !ok {
+		enum = NewEnum(name)
+		f.Enums[name] = enum
+	} else {
+		enum = f.Enums[name]
+	}
+
 	enum.GeneratedFrom = EnumTypeStruct
 
 	for i, field := range structType.Fields.List {
@@ -102,7 +124,9 @@ func (f *EnumExtractor) buildEnumFromStruct(name string, structDec *dst.TypeSpec
 	}
 
 	enum.Finalize()
-	f.Enums = append(f.Enums, enum)
+
+	f.Enums[name] = enum
+
 }
 
 func (f *EnumExtractor) BuildEnumsFromComments(comments []string) {
@@ -129,7 +153,13 @@ func (f *EnumExtractor) BuildEnumsFromComments(comments []string) {
 
 	// Now we'll iterate over the groups and build an enum from each group
 	for groupName, groupComments := range groups {
-		enum := NewEnum(groupName)
+		var enum *Enum
+		if _, ok := f.Enums[groupName]; !ok {
+			enum = NewEnum(groupName)
+			f.Enums[groupName] = enum
+		} else {
+			enum = f.Enums[groupName]
+		}
 		enum.GeneratedFrom = EnumTypeComment
 
 		enumIdx := 0
@@ -155,6 +185,7 @@ func (f *EnumExtractor) BuildEnumsFromComments(comments []string) {
 		}
 
 		enum.Finalize()
-		f.Enums = append(f.Enums, enum)
+
+		f.Enums[enum.DefinedName] = enum
 	}
 }

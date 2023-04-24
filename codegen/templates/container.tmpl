@@ -42,14 +42,10 @@ var {{$ContainerMapVarName}} = map[string]{{$Name}}{
 }
 
 var {{$ContainerVarName}} = {{$ContainerStructTypeName}}{
-    EnumContainer: EnumContainer[{{$Name}}, {{.ValueType}}]{
-        Values: []{{$Name}}{
-            {{- range .Values }}
-            {{$ContainerMapVarName}}["{{.DefinedName}}"],
-            {{- end }}
-        },
-        Map: {{$ContainerMapVarName}},
-    },
+    EnumContainer: *NewEnumContainer[{{$Name}}, {{.ValueType}}](
+        {{$ContainerMapVarName}},
+        {{- if .CompareFunction }} {{.CompareFunction}} {{- else }} nil {{- end }},
+    ),
 
 {{- range .Values }}
     {{.DefinedName}}: {{$ContainerMapVarName}}["{{.DefinedName}}"],

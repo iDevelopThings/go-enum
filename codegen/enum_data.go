@@ -30,6 +30,8 @@ type Enum struct {
 	GenInstanceVariable   string
 
 	GeneratedFile bytes.Buffer
+
+	CompareFunction string
 }
 
 func NewEnum(definedName string) *Enum {
