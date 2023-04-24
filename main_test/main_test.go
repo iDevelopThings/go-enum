@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/idevelopthings/go-enum/codegen"
+	"github.com/iDevelopThings/go-enum/codegen"
 	"os"
 	"testing"
 )
