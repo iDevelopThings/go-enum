@@ -56,6 +56,12 @@ func Test_ContainerTemplate(t *testing.T) {
 	fmt.Println("done")
 }
 
+func Test_EnumMethods(t *testing.T) {
+	if ExternalLanguages.Has("PHP") == false {
+		t.Error("Expected PHP to be in the enum")
+	}
+}
+
 /*func Test_GeneratedStructs(t *testing.T) {
 	ev := StructErrors.PE_Regular_NoName
 	fmt.Println("ev:", ev)

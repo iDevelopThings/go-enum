@@ -48,9 +48,9 @@ func (g *CodeGenerator) ProcessPackage() {
 	cfg := &packages.Config{
 		Mode:  packages.LoadSyntax,
 		Tests: false,
-		Logf: func(format string, args ...interface{}) {
+		/*Logf: func(format string, args ...interface{}) {
 			logger.Debugf(format, args...)
-		},
+		},*/
 	}
 
 	pkgs, err := decorator.Load(cfg, Options.InputFile)
@@ -73,11 +73,22 @@ func (g *CodeGenerator) ProcessPackage() {
 func (g *CodeGenerator) ExtractCommentsFromAst() {
 	comments := make([]string, 0)
 
+	commentMap := make(map[string]bool)
+
 	for _, d := range g.File.Decls {
 		comment := d.Decorations()
 		for _, s := range comment.Start.All() {
 			comments = append(comments, s)
+			commentMap[s] = true
 		}
+	}
+
+	decs := g.File.Decs.Name
+	for _, s := range decs.All() {
+		if _, ok := commentMap[s]; ok {
+			continue
+		}
+		comments = append(comments, s)
 	}
 
 	g.FileComments = comments

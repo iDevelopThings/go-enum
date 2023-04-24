@@ -24,6 +24,7 @@ type {{$ContainerStructTypeName}} struct {
     EnumContainer[{{$Name}}, {{.ValueType}}]
 
     {{ range .Values }}
+    // {{.Description}}
     {{.DefinedName}} {{$Name}}
     {{- end }}
 }
