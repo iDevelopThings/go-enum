@@ -1,0 +1,5 @@
+gonum
+.idea/
+/dist
+/bin
+main_test/atest_enum_struct.gen.go

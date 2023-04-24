@@ -1,0 +1,58 @@
+{{- /*gotype: github.com/idevelopthings/go-enum/codegen.Enum */ -}}
+
+{{/* @formatter:off */ -}}
+
+{{- $Name := .GenEnumDefName  -}}
+{{- $ContainerStructTypeName := printf "%sContainer" .GenEnumListName  -}}
+{{- $ContainerMapVarName := printf "%sContainerMap" .GenLowerCamelCaseName  -}}
+{{- $ContainerVarName := .GenEnumListName  -}}
+
+/**
+ * START OF {{ $Name }}
+ */
+
+
+type {{$Name}} struct {
+    Enum[{{.ValueType}}]
+}
+
+func (e {{$Name}}) GetAll() {{$ContainerStructTypeName}} {
+    return {{$ContainerVarName}}
+}
+
+type {{$ContainerStructTypeName}} struct {
+    EnumContainer[{{$Name}}, {{.ValueType}}]
+
+    {{ range .Values }}
+    {{.DefinedName}} {{$Name}}
+    {{- end }}
+}
+
+var {{$ContainerMapVarName}} = map[string]{{$Name}}{
+{{- range .Values }}
+    "{{.DefinedName}}": {{$Name}}{
+        Enum: Enum[{{.Type}}]{
+            Name: "{{.DefinedName}}",
+            Value: {{.Value}},
+            Description: "{{.Description}}",
+        },
+    },
+{{- end }}
+}
+
+var {{$ContainerVarName}} = {{$ContainerStructTypeName}}{
+    EnumContainer: EnumContainer[{{$Name}}, {{.ValueType}}]{
+        Values: []{{$Name}}{
+            {{- range .Values }}
+            {{$ContainerMapVarName}}["{{.DefinedName}}"],
+            {{- end }}
+        },
+        Map: {{$ContainerMapVarName}},
+    },
+
+{{- range .Values }}
+    {{.DefinedName}}: {{$ContainerMapVarName}}["{{.DefinedName}}"],
+{{- end }}
+}
+
+{{- /* @formatter:on */}}

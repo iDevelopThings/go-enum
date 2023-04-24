@@ -1,0 +1,83 @@
+{{- /*gotype: github.com/idevelopthings/go-enum.Enum*/ -}}
+
+{{ $NewType := .GeneratedName }}
+{{ $ListVariable := .GenEnumListName }}
+{{ $ListVariableTypeName := printf "_type%s" $ListVariable }}
+
+
+{{/* @formatter:off */ -}}
+type {{.GenInstanceVariable}}JsonDescriptionModel struct {
+    Name string `json:"name"`
+    Description string `json:"description"`
+}
+{{- /* @formatter:on */}}
+
+
+var {{.GenInstanceVariable}} = {{.DefinedName}} {
+{{- range .Values}}
+    {{.DefinedName}}: "{{.CustomName}}",
+{{- end}}
+}
+
+
+{{- /* @formatter:off */}}
+type {{$NewType}} struct {
+    name  string
+    value string
+    description string
+}
+{{- /* @formatter:on */}}
+
+func (e {{$NewType}}) Name() string {
+return e.name
+}
+
+func (e {{$NewType}}) String() string {
+return e.Name()
+}
+
+func (e {{$NewType}}) Value() string {
+return e.value
+}
+
+func (e {{$NewType}}) Description() string {
+return e.description
+}
+
+// Define the `list` type for the enums
+type _type{{.GenEnumListName}} struct {
+{{- range $e := .Values}}
+    {{.DefinedName}} {{$NewType}}
+{{- end}}
+}
+
+// Define the `list` variable for the enums
+// This is only here to provide some "namespaced" access to the enum instances
+var {{.GenEnumListName}} = &{{$ListVariableTypeName}} {
+{{- range .Values}}
+    {{.DefinedName}}: {{$NewType}}{name: "{{.DefinedName}}", value: "{{.CustomName}}", description: "{{.Description}}"},
+{{- end}}
+}
+
+{{ $EnumListMap := printf "_enum%sMap" $ListVariable}}
+
+var {{$EnumListMap}} = map[string]{{$NewType}}{
+{{- range .Values}}
+    "{{.DefinedName}}": {{$ListVariable}}.{{.DefinedName}},
+{{- end}}
+}
+{{ $EnumValuesArr := printf "_enum%sArr" $ListVariable}}
+
+var {{$EnumValuesArr}} = []{{$NewType}}{
+{{- range .Values}}
+    {{$ListVariable}}.{{.DefinedName}},
+{{- end}}
+}
+
+
+func (list *{{$ListVariableTypeName}}) GetMap() map[string]{{$NewType}} {
+return {{$EnumListMap}}
+}
+func (list *{{$ListVariableTypeName}}) GetAll() []{{$NewType}} {
+return {{$EnumValuesArr}}
+}
